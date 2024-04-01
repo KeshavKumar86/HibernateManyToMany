@@ -3,6 +3,7 @@ package com.luv2code.cruddemo.dao;
 import com.luv2code.cruddemo.entity.Course;
 import com.luv2code.cruddemo.entity.Instructor;
 import com.luv2code.cruddemo.entity.InstructorDetail;
+import com.luv2code.cruddemo.entity.Student;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
@@ -145,5 +146,35 @@ public class AppDAOImpl implements AppDAO{
 
     }
 
+    @Override
+    public Course findCourseAndStudentsByCourseId(int id) {
+        TypedQuery<Course> typedQuery = entityManager.createQuery("select c from Course c " +
+                                        "join fetch c.students " +
+                                        "where c.id = :data", Course.class);
+        typedQuery.setParameter("data",id);
+        return typedQuery.getSingleResult();
+    }
 
+    @Override
+    public Student findStudentAndCoursesByStudentId(int id) {
+        TypedQuery<Student> query = entityManager.createQuery("select s from Student s " +
+                                    "join fetch s.courses " +
+                                    "where s.id = :data", Student.class);
+        query.setParameter("data",id);
+        return query.getSingleResult();
+
+    }
+    @Transactional
+    @Override
+    public void updateStudent(Student student) {
+        entityManager.merge(student);
+    }
+    @Transactional
+    @Override
+    public void deleteStudentById(int id) {
+        //fetch the student
+        Student student = entityManager.find(Student.class,id);
+        //delete the student
+        entityManager.remove(student);
+    }
 }
